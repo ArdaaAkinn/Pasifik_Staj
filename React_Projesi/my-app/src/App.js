@@ -18,56 +18,62 @@ const [expression, setExp] = useState([]);
 
 function calculation() {
   const str = array.join("");
-  setExp(str.split(/([-|+|\/|*])/));
+  let exp = (str.split(/([-+/*])/));
+  let res = [];
 
-  for (let i = 1; i<expression.length; i++)
+  for (let i = 0; i<exp.length; i++)
   {
-    if(expression[i] === "*" || expression[i] === "/")
+    if(exp[i] === "*" || exp[i] === "/")
     {
-      const leftNum = Number(expression[i-1]);
-      const rightNum = Number(expression[i+1]);
+      const leftNum = Number(exp[i-1]);
+      const rightNum = Number(exp[i+1]);
       
-      if(expression[i] === "*")
+      if(exp[i] === "*")
       {
-        setResult(leftNum * rightNum);
+        res = (leftNum * rightNum);
       }
       else
       {
-        setResult(leftNum / rightNum);
+        res = (leftNum / rightNum);
       }
 
-      if(expression.slice(0,leftNum) === [])
+      if(exp.slice(0,i-1).length === 0)
       {
-        setExp([result , expression.slice(rightNum+1)])
+        exp = ([res , ...exp.slice(i+2)])
       }
       else
       {
-        setExp([expression.slice(0, leftNum) , result, expression.slice(rightNum+1)]);
+        exp = ([...exp.slice(0, i-1) , res, ...exp.slice(i+2)]);
       }
-      
-    }
-    else if (expression[i] === "-" || expression[i] === "+")
-    {
-      const leftNum = Number(expression[i-1]);
-      const rightNum = Number(expression[i+1]);
-      if(expression[i] === "-")
-      {
-        setResult(leftNum - rightNum);
-      }
-      else
-      {
-        setResult(leftNum + rightNum);
-      }
-      if(expression.slice(0,leftNum) === [])
-      {
-        setExp([result , expression.slice(rightNum+1)])
-      }
-      else
-      {
-        setExp([expression.slice(0, leftNum) , result, expression.slice(rightNum+1)]);
-      }
+      i = 0;
     }
   }
+  for (let i = 0; i<exp.length; i++)
+    {
+    if (exp[i] === "-" || exp[i] === "+")
+    {
+      const leftNum = Number(exp[i-1]);
+      const rightNum = Number(exp[i+1]);
+      if(exp[i] === "-")
+      {
+        res = (leftNum - rightNum);
+      }
+      else
+      {
+        res = (leftNum + rightNum);
+      }
+      if(exp.slice(0,i-1).length === 0)
+      {
+        exp = ([res , ...exp.slice(i+2)])
+      }
+      else
+      {
+        exp= ([...exp.slice(0, i-1) , res, ...exp.slice(i+2)]);
+      }
+      i = 0;
+    }
+  }
+  setResult([res]);
 }
 
 
@@ -87,7 +93,9 @@ function calculation() {
         <div className = "flex flex-col justify-center items-center mx-auto max-w-md w-full rounded-b-3xl h-80 bg-slate-700 grid grid-cols-4 grid-rows-5 place-items-center">
           <button onClick = {() => {clearArray(); setResult([]); setExp([]);}}  className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-500 outline outline-1 outline-white hover:bg-gray-300">C</button>
           <button onClick = {() => {deleteFromArray(); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-500 outline outline-1 outline-white hover:bg-gray-300">Del</button>
-          <button className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-500 outline outline-1 outline-white hover:bg-gray-300">""</button>
+    
+          <button onClick = {() => {addToArray("."); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">.</button>
+          
           <button onClick = {() => addToArraySpec("/")} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-orange-500 outline outline-1 outline-white hover:bg-orange-300">/</button>
           <button onClick = {() => {addToArray("7"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">7</button>
           <button onClick = {() => {addToArray("8"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">8</button>
@@ -101,10 +109,10 @@ function calculation() {
           <button onClick = {() => {addToArray("2"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">2</button>
           <button onClick = {() => {addToArray("3"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">3</button>
           <button onClick = {() => {addToArraySpec("+"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-orange-500 outline outline-1 outline-white hover:bg-orange-300">+</button>
-          <button className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">()</button>
+          <div></div>
           <button onClick = {() => {addToArray("0"); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">0</button>
-          <button onClick = {() => {addToArray("."); setResult([]);}} className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-gray-700 outline outline-1 outline-white hover:bg-orange-300">.</button>
-          <button onClick = {() => {calculation();}}className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-orange-500 outline outline-1 outline-white hover:bg-orange-300">=</button>
+          <div></div>
+          <button onClick = {() => {calculation(); setNums([]);}}className = "flex justify-center items-center rounded-full w-12 h-12 text-bold text-white text-center text-sm bg-orange-500 outline outline-1 outline-white hover:bg-orange-300">=</button>
         </div>
       </header>
     </div>
