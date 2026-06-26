@@ -32,11 +32,15 @@ function nameHeading(template: string, containerId: string){
     function getter(){
         return param + " " + param;
     }
+    return(
+    set: setter
+    get: getter
+    )
 } */
 
-function duplicator(target:any, parameterName: string): any {
+function duplicator(target:any, propertyName: string): any {
     let param: string;
-    Object.defineProperty(target,parameterName, {
+    Object.defineProperty(target,propertyName, {
         get(){
             return param + " " + param;
         },
@@ -48,17 +52,38 @@ function duplicator(target:any, parameterName: string): any {
     })  
 } 
 
+function accessDecorator(target:any, name:string, descriptor:PropertyDescriptor){
+    descriptor.get = function(){
+        console.log("Getter working")
+    }
+
+    descriptor.set = function(){
+        console.log("Setter working");
+    }
+}
+
 @welcomeMessage
 @helperMessageDecorator("Size Nasıl Yardımcı Olabilirim?")
 @nameHeading("<h3></h3>","container1")
 class Profile{
-    @duplicator
+    //@duplicator
     name : string = "arda";
     age: number = 21;
     hometown: string = "bolu";
+
+    @accessDecorator
+    get get_name(){
+        return this.name;
+    }
+
+    set get_name(newName: string){
+        this.name = newName;
+    }
 }
 
 const p = new Profile()
+let a = p.get_name;
+console.log(a)
 console.log(p)
 export {};
 
