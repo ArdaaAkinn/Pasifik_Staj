@@ -1,10 +1,13 @@
 import "./App.css";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MagnifyingGlassIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ChatBubbleLeftIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import Bars3Icon from "@heroicons/react/24/outline/Bars3Icon";
 import SunIcon from "@heroicons/react/24/outline/SunIcon";
+import { Link } from "react-router-dom";
+import { Trending } from "./Trending";
+import { Health } from "./Health";
 
 function App() {
   const [openArt, setIsArtOpen] = useState(false);
@@ -13,6 +16,8 @@ function App() {
   const [openSearch, setSearchOpen] = useState(false);
   const [openComment, setCommentOpen] = useState(false);
   const [openMenu, setMenuOpen] = useState(false);
+  const [images, setImages] = useState([]);
+  const [articles, setArticles] = useState([]);
 
   function handleTabs(name) {
     if (name === "Art") {
@@ -48,6 +53,7 @@ function App() {
     const articles = await axios.get(
       "https://api.github.com/repos/ArdaaAkinn/Blog-Articles/contents/Articles/Trending/Texts",
     );
+    console.log(articles.data);
     return articles.data;
   }
 
@@ -58,10 +64,18 @@ function App() {
     return images.data;
   }
 
-  (async () => {
-    console.log(await getRepoArticles());
-    console.log(await getRepoImages());
-  })();
+  useEffect(() => {
+    try {
+      (async () => {
+        const images = await getRepoImages();
+        setImages(images);
+        const articles = await getRepoArticles();
+        setArticles(articles);
+      })();
+    } catch (error) {
+      console.error("No Network");
+    }
+  }, []);
 
   return (
     <div className="h-screen w-full grid grid-rows-[auto_1fr]">
@@ -81,10 +95,14 @@ function App() {
           {openArt && (
             <div className="fixed rounded-b-3xl right-120 h-20 w-60 bg-slate-900 z-50 translate-y-20 px-6 border-2 border-white">
               <li className="text-white">
-                <button className="text-white underline">Trending</button>
+                <Link to="/Trending">
+                  <button className="text-white underline">Trending</button>
+                </Link>
               </li>
               <li className="text-white">
-                <button className="text-white underline">Health</button>
+                <Link to="/Health">
+                  <button className="text-white underline">Health</button>
+                </Link>
               </li>
               <li className="text-white">
                 <button className="text-white underline">Lifestyle</button>
@@ -186,15 +204,32 @@ function App() {
           className={`gap-4 flex flex-col min-h-0 overflow-y-auto items-center bg-slate-900 p-4 [&::-webkit-scrollbar]:hidden ${openArt || openNews || openWeather ? "bg-slate-900/60" : ""}`}
         >
           <p className="p-2 text-white">Check These Out!</p>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
-          <button className="h-48 w-72 shrink-0 outline outline-white"></button>
+          {images && images.length === 0
+            ? " "
+            : images.map((img, index) => (
+                <div className="relative group">
+                  <Link
+                    to={`/article/${articles[index] ? articles[index].name : ""}`}
+                  >
+                    <button className="h-48 w-72 shrink-0 outline outline-white">
+                      <img
+                        src={img.download_url}
+                        alt={img.name}
+                        className="h-48 w-72 shrink-0 group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </button>
+                  </Link>
+                  <div className="absolute inset-x-0 bottom-0 h-16 z-50 flex text-white text-center rounded-t-xl bg-slate-900/60 p-2 group-hover:scale-105 transition-transform duration-300">
+                    {articles && articles.length === 0 ? (
+                      ""
+                    ) : (
+                      <p className="overflow-hidden text-clip">
+                        {articles[index].name.replace(".md", "")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
         </div>
       </div>
       {openMenu && (
